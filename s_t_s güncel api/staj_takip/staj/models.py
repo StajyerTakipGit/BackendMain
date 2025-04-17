@@ -21,7 +21,7 @@ class Staj(models.Model):
 
 class StajDefteri(models.Model):
     staj = models.ForeignKey(Staj, on_delete=models.CASCADE, related_name='defter_girdileri')
-    gun_no = models.PositiveIntegerField()
+    gun_no = models.DateField()
     icerik = models.TextField()
     tarih = models.DateField(auto_now_add=True)
 
