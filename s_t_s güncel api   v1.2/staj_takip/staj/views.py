@@ -3,6 +3,9 @@ from django.shortcuts import render
 from rest_framework import generics, permissions
 from .models import Staj, StajDefteri
 from .serializers import StajSerializer, StajDefteriSerializer
+from django.core.mail import send_mail
+from django.conf import settings
+
 
 class StajListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = StajSerializer
@@ -46,3 +49,26 @@ class KurumStajDetayUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = StajSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = Staj.objects.all()
+
+    def perform_update(self, serializer):
+        staj = serializer.save()
+        
+        if staj.kurum_onaylandi:
+            # HTML içerikli mail
+            html_message = f"""
+            <h2>Staj Başvuru Onayı</h2>
+            <p>Merhaba <strong>{staj.ogrenci.isim}</strong>,</p>
+            <p>{staj.kurum_adi} tarafından yapmış olduğunuz staj başvurusu onaylandı.</p>
+            <p>Lütfen sistem üzerinden süreci takip ediniz.</p>
+            <hr>
+            <p><em>Staj Takip Sistemi</em></p>
+            """
+            
+            send_mail(
+                subject='Staj Başvurunuz Onaylandı ✅',
+                message='',  # Boş bırakılıyor çünkü html_message kullanıyoruz
+                from_email=None,  # DEFAULT_FROM_EMAIL otomatik kullanılır
+                recipient_list=[staj.ogrenci.email],
+                fail_silently=False,
+                html_message=html_message  # HTML formatında mail
+            )

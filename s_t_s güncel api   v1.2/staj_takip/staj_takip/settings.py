@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'staj',
     'corsheaders',
     'adminpanel',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
@@ -134,10 +135,18 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+     'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ]
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@stajtakip.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'cdogukan032@gmail.com'  # Gmail adresiniz
+EMAIL_HOST_PASSWORD = 'yugk ioli llss obmt'  # 16 haneli uygulama şifresi
+DEFAULT_FROM_EMAIL = 'Staj Takip Sistemi <cdogukan032@gmail.com>'
 
 # React Native geliştirme için tüm origin'lere izin ver
 CORS_ALLOW_ALL_ORIGINS = True  # Sadece development'ta kullanın

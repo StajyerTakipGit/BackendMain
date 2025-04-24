@@ -4,11 +4,13 @@ from rest_framework import generics, permissions
 from staj.models import Staj
 from staj.serializers import StajSerializer
 from django.core.mail import send_mail
+from django_filters.rest_framework import DjangoFilterBackend
 
 class AdminStajListAPIView(generics.ListAPIView):
     serializer_class = StajSerializer
     permission_classes = [permissions.IsAdminUser]
     queryset = Staj.objects.all()
+    
 
 class AdminStajOnayAPIView(generics.UpdateAPIView):
     serializer_class = StajSerializer
@@ -25,3 +27,13 @@ class AdminStajOnayAPIView(generics.UpdateAPIView):
                 recipient_list=['admin@universite.com'],
                 fail_silently=True,
             )
+
+
+class AdminFilteredStajListAPIView(generics.ListAPIView):
+    serializer_class = StajSerializer
+    permission_classes = [permissions.IsAdminUser]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['durum', 'konu', 'baslangic_tarihi', 'ogrenci__isim']
+
+    def get_queryset(self):
+        return Staj.objects.filter(kurum_onaylandi=True)

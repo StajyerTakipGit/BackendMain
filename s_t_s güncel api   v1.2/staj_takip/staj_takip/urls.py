@@ -17,12 +17,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from kullanici.views import GirisAPIView
+from rest_framework_simplejwt.views import (
+    TokenRefreshView,
+    TokenBlacklistView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/giris/', GirisAPIView.as_view(), name='token_al'),
     path('api/', include('staj.urls')),
     path('api/', include('adminpanel.urls')),
+
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
 ]
 
 
