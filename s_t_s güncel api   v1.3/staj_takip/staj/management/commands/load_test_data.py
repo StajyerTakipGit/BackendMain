@@ -34,6 +34,19 @@ class Command(BaseCommand):
         kurum.set_password('12345678')
         kurum.save()
 
+
+        
+
+
+
+
+
+
+
+
+
+
+
         # Admin oluştur
         admin, _ = Kullanici.objects.get_or_create(
             email='admin@example.com',

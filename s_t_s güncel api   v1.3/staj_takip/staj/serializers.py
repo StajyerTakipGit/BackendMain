@@ -10,5 +10,4 @@ class StajSerializer(serializers.ModelSerializer):
 class StajDefteriSerializer(serializers.ModelSerializer):
     class Meta:
         model = StajDefteri
-        fields = '__all__'
-        read_only_fields = ['staj', 'tarih']
+        fields = ['gun_no', 'icerik']
