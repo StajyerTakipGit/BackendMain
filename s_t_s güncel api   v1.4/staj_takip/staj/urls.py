@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     StajListCreateAPIView, StajDetayAPIView, StajDefteriListCreateAPIView,
-    KurumStajListAPIView, KurumStajDetayUpdateAPIView
+    KurumStajListAPIView, KurumStajUpdateAPIView
 )
 from .views import StajDefteriUpdateAPIView
 
@@ -16,5 +16,5 @@ urlpatterns = [
 
     # Kurum
     path('kurum/stajyerler/', KurumStajListAPIView.as_view(), name='kurum-stajyerler'),
-    path('kurum/stajyerler/<int:pk>/', KurumStajDetayUpdateAPIView.as_view(), name='kurum-onay'),
+    path('kurum/stajlar/<int:pk>/', KurumStajUpdateAPIView.as_view(), name='kurum-staj-update'),
 ]

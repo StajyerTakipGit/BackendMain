@@ -8,6 +8,7 @@ from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.exceptions import PermissionDenied
 
 
 
@@ -72,32 +73,27 @@ class KurumStajListAPIView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Staj.objects.filter(kurum_adi__icontains=self.request.user.email)  # örnek filtre mantığı
+        user = self.request.user
+        if user.rol != "KURUM":
+            raise PermissionDenied("Sadece kurum kullanıcıları erişebilir.")
+        return Staj.objects.filter(kurum_adi__icontains=user.email)  # örnek eşleşme
+        
 
-class KurumStajDetayUpdateAPIView(generics.RetrieveUpdateAPIView):
+# 2️⃣ Staj başvurusunu güncelle (onayla/puanla)
+class KurumStajUpdateAPIView(generics.UpdateAPIView):
     serializer_class = StajSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = Staj.objects.all()
 
     def perform_update(self, serializer):
         staj = serializer.save()
-        
+
+        # Eğer kurum onay verdiyse, öğrenciye e-posta gönder
         if staj.kurum_onaylandi:
-            # HTML içerikli mail
-            html_message = f"""
-            <h2>Staj Başvuru Onayı</h2>
-            <p>Merhaba <strong>{staj.ogrenci.isim}</strong>,</p>
-            <p>{staj.kurum_adi} tarafından yapmış olduğunuz staj başvurusu onaylandı.</p>
-            <p>Lütfen sistem üzerinden süreci takip ediniz.</p>
-            <hr>
-            <p><em>Staj Takip Sistemi</em></p>
-            """
-            
             send_mail(
                 subject='Staj Başvurunuz Onaylandı ✅',
-                message='',  # Boş bırakılıyor çünkü html_message kullanıyoruz
-                from_email=None,  # DEFAULT_FROM_EMAIL otomatik kullanılır
+                message=f"{staj.kurum_adi} tarafından onaylandı.",
+                from_email=None,
                 recipient_list=[staj.ogrenci.email],
-                fail_silently=False,
-                html_message=html_message  # HTML formatında mail
+                fail_silently=True
             )

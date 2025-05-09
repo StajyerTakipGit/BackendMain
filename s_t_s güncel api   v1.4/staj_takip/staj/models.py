@@ -3,6 +3,7 @@ from kullanici.models import Kullanici
 
 class Staj(models.Model):
     ogrenci = models.ForeignKey(Kullanici, on_delete=models.CASCADE, related_name='stajlar')
+    
     kurum_adi = models.CharField(max_length=100)
     baslangic_tarihi = models.DateField()
     bitis_tarihi = models.DateField()
