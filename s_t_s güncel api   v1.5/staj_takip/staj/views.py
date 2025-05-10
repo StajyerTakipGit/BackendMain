@@ -9,7 +9,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import PermissionDenied
-
+from .models import HesapTalep, Kullanici
+from .serializers import HesapTalepSerializer
+from django.contrib.auth.hashers import make_password
+import random
+import string
 
 
 
@@ -79,7 +83,7 @@ class KurumStajListAPIView(generics.ListAPIView):
         return Staj.objects.filter(kurum_adi__icontains=user.email)  # örnek eşleşme
         
 
-# 2️⃣ Staj başvurusunu güncelle (onayla/puanla)
+# 2️ Staj başvurusunu güncelle (onayla/puanla)
 class KurumStajUpdateAPIView(generics.UpdateAPIView):
     serializer_class = StajSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -87,6 +91,13 @@ class KurumStajUpdateAPIView(generics.UpdateAPIView):
 
     def perform_update(self, serializer):
         staj = serializer.save()
+
+        # durum güncelleme olayı 
+        if staj.kurum_onaylandi:
+            staj.durum = "Tamamlandı"
+        else:
+            staj.durum = "Tamamlanmadı"
+        staj.save()
 
         # Eğer kurum onay verdiyse, öğrenciye e-posta gönder
         if staj.kurum_onaylandi:
@@ -97,3 +108,61 @@ class KurumStajUpdateAPIView(generics.UpdateAPIView):
                 recipient_list=[staj.ogrenci.email],
                 fail_silently=True
             )
+
+
+
+
+# otomatik kullanıcı oluşturma ve şifreleme mail gönderimi
+
+# Başvuru yapan kullanıcılar için
+class HesapTalepCreateAPIView(generics.CreateAPIView):
+    serializer_class = HesapTalepSerializer
+    permission_classes = [permissions.AllowAny]
+
+# Admin'in tüm başvuruları listeleyebilmesi için
+class HesapTalepListAPIView(generics.ListAPIView):
+    serializer_class = HesapTalepSerializer
+    permission_classes = [permissions.IsAdminUser]
+    queryset = HesapTalep.objects.filter(onaylandi=False)
+
+# Admin onay verip otomatik kullanıcı oluşturma işlemi
+class HesapTalepOnayAPIView(generics.UpdateAPIView):
+    serializer_class = HesapTalepSerializer
+    permission_classes = [permissions.IsAdminUser]
+    queryset = HesapTalep.objects.all()
+
+    def update(self, request, *args, **kwargs):
+        talep = self.get_object()
+        if talep.onaylandi:
+            return Response({'detail': 'Zaten onaylanmış.'}, status=400)
+
+        # Kullanıcıyı oluştur
+        Kullanici.objects.create_user(
+            email=talep.email,
+            password="12345678",  # veya random üretilip e-postalanabilir
+            isim=talep.isim,
+            rol=talep.rol,
+            is_staff=(talep.rol == 'ADMIN')
+        )
+
+        # Talep onaylandı olarak işaretle
+        talep.onaylandi = True
+        talep.save()
+
+        # Bilgilendirme maili gönder
+        send_mail(
+            subject="Hesabınız Onaylandı",
+            message="Sisteme giriş yapabilirsiniz. Şifreniz: 12345678",
+            recipient_list=[talep.email],
+            from_email=None,
+            fail_silently=True,
+        )
+
+        return Response({'detail': 'Kullanıcı oluşturuldu ve e-posta gönderildi.'}, status=status.HTTP_200_OK)
+    
+    # random şifre ataması
+    def generate_password(length=8):
+         return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
+        # sonra view içinde:
+    sifre = generate_password() 

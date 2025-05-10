@@ -13,6 +13,7 @@ class Staj(models.Model):
     kurum_onaylandi = models.BooleanField(default=False)
     kurum_puani = models.IntegerField(null=True, blank=True)
     kurum_aciklama = models.TextField(null=True, blank=True)
+    durum = models.CharField(max_length=20, default="Beklemede") # son eklediğim alan 
 
 
     
@@ -28,3 +29,25 @@ class StajDefteri(models.Model):
 
     def __str__(self):
         return f"Gün {self.gun_no} - {self.staj}"
+    
+
+
+
+
+
+    # staj/models.py 
+    # hesap talep modelim
+
+class HesapTalep(models.Model):
+    ROL_SECENEKLERI = [
+        ('OGRENCI', 'Öğrenci'),
+        ('KURUM', 'Kurum'),
+    ]
+    email = models.EmailField(unique=True)
+    isim = models.CharField(max_length=50)
+    rol = models.CharField(max_length=10, choices=ROL_SECENEKLERI)
+    onaylandi = models.BooleanField(default=False)
+    tarih = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.email} ({self.rol})"

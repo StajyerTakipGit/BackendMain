@@ -5,6 +5,12 @@ from .views import (
 )
 from .views import StajDefteriUpdateAPIView
 
+from .views import (
+    HesapTalepCreateAPIView,
+    HesapTalepListAPIView,
+    HesapTalepOnayAPIView,
+)
+
 urlpatterns = [
     # Öğrenci
     path('ogrenci/stajlar/', StajListCreateAPIView.as_view(), name='staj-listesi'),
@@ -17,4 +23,11 @@ urlpatterns = [
     # Kurum
     path('kurum/stajyerler/', KurumStajListAPIView.as_view(), name='kurum-stajyerler'),
     path('kurum/stajlar/<int:pk>/', KurumStajUpdateAPIView.as_view(), name='kurum-staj-update'),
+
+
+    # hesap ekleme ve tanımlama 
+
+    path('hesap-talep/', HesapTalepCreateAPIView.as_view(), name='talep-olustur'),
+    path('hesap-talep-listesi/', HesapTalepListAPIView.as_view(), name='admin-talepler'),
+    path('hesap-talep-onayla/<int:pk>/', HesapTalepOnayAPIView.as_view(), name='talep-onayla'),
 ]

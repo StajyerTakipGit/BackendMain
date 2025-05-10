@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Staj, StajDefteri
 from kullanici.models import Kullanici
+from .models import HesapTalep
 
 class StajSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,3 +27,11 @@ class StajSerializer(serializers.ModelSerializer):
     class Meta:
         model = Staj
         fields = '__all__'
+
+
+class HesapTalepSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HesapTalep
+        fields = '__all__'
+        read_only_fields = ['onaylandi', 'tarih']
+
