@@ -2,6 +2,13 @@ from django.db import models
 from kullanici.models import Kullanici
 
 class Staj(models.Model):
+
+    DURUM_SECENEKLERI = [
+        ('Beklemede', 'Beklemede'),
+        ('Aktif', 'Aktif'),
+        ('Tamamlandı', 'Tamamlandı'),
+        ('Reddedildi', 'Reddedildi'),
+    ]
     ogrenci = models.ForeignKey(Kullanici, on_delete=models.CASCADE, related_name='stajlar')
     
     kurum_adi = models.CharField(max_length=100)
@@ -13,7 +20,11 @@ class Staj(models.Model):
     kurum_onaylandi = models.BooleanField(default=False)
     kurum_puani = models.IntegerField(null=True, blank=True)
     kurum_aciklama = models.TextField(null=True, blank=True)
-    durum = models.CharField(max_length=20, default="Beklemede") # son eklediğim alan 
+    durum = models.CharField(
+        max_length=20,
+        choices=DURUM_SECENEKLERI,
+        default='Beklemede'
+    )
 
 
     

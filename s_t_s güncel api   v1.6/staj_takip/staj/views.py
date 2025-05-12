@@ -92,11 +92,11 @@ class KurumStajUpdateAPIView(generics.UpdateAPIView):
     def perform_update(self, serializer):
         staj = serializer.save()
 
-        # durum güncelleme olayı 
+        # Durumu güncelle: onaylandıysa aktif, reddedildiyse reddedildi
         if staj.kurum_onaylandi:
-            staj.durum = "Tamamlandı"
+            staj.durum = "Aktif"
         else:
-            staj.durum = "Tamamlanmadı"
+            staj.durum = "Reddedildi"
         staj.save()
 
         # Eğer kurum onay verdiyse, öğrenciye e-posta gönder
