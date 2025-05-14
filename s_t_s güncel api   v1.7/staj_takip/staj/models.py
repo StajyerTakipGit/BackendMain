@@ -20,6 +20,7 @@ class Staj(models.Model):
     kurum_onaylandi = models.BooleanField(default=False)
     kurum_puani = models.IntegerField(null=True, blank=True)
     kurum_aciklama = models.TextField(null=True, blank=True)
+    admin_onaylandi = models.BooleanField(default=False)
     durum = models.CharField(
         max_length=20,
         choices=DURUM_SECENEKLERI,

@@ -94,7 +94,7 @@ class KurumStajUpdateAPIView(generics.UpdateAPIView):
 
         # Durumu güncelle: onaylandıysa aktif, reddedildiyse reddedildi
         if staj.kurum_onaylandi:
-            staj.durum = "Aktif"
+            staj.durum = "Kurum Onayladı"
         else:
             staj.durum = "Reddedildi"
         staj.save()

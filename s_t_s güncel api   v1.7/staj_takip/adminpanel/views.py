@@ -19,14 +19,29 @@ class AdminStajOnayAPIView(generics.UpdateAPIView):
 
     def perform_update(self, serializer):
         staj = serializer.save()
-        if staj.kurum_onaylandi:
+
+        # Durum kontrolü: Kurum onayladıysa ve şimdi admin de onaylıyorsa "Aktif" yap
+        if staj.kurum_onaylandi and staj.admin_onaylandi:
+            staj.durum = "Aktif"
+
+            # Öğrenciye bilgilendirme e-postası gönder
             send_mail(
-                subject='Staj Onayı Bekliyor',
-                message=f"{staj.ogrenci.isim} {staj.ogrenci.soyisim} adlı öğrencinin stajı kurum tarafından onaylandı. Lütfen kontrol ediniz.",
+                subject='🎓 Staj Başvurunuz Onaylandı!',
+                message=f"Sayın {staj.ogrenci.isim}, {staj.kurum_adi} tarafından onaylanan staj başvurunuz artık üniversite tarafından da onaylandı. Staj süreciniz başlamıştır.",
                 from_email=None,
-                recipient_list=['admin@universite.com'],
-                fail_silently=True,
+                recipient_list=[staj.ogrenci.email],
+                fail_silently=True
             )
+
+        # Eğer kurum onayı varsa ama admin onayı verilmediyse, "Kurum Onayladı" olarak kalır
+        elif staj.kurum_onaylandi and not staj.admin_onaylandi:
+            staj.durum = "Kurum Onayladı"
+
+        # Reddedilmişse veya iptal edilmişse
+        else:
+            staj.durum = "Reddedildi"
+
+        staj.save()
 
 
 class AdminFilteredStajListAPIView(generics.ListAPIView):
