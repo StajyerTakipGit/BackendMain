@@ -14,6 +14,7 @@ from .serializers import HesapTalepSerializer
 from django.contrib.auth.hashers import make_password
 import random
 import string
+from rest_framework.exceptions import ValidationError
 
 
 
@@ -49,7 +50,15 @@ class StajListCreateAPIView(generics.ListCreateAPIView):
         return Staj.objects.filter(ogrenci=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(ogrenci=self.request.user)
+        ogrenci = self.request.user
+        kurum_adi = serializer.validated_data.get("kurum_adi")
+
+        # ❌ Aynı öğrenci aynı kuruma daha önce başvuru yaptıysa hata ver
+        if Staj.objects.filter(ogrenci=ogrenci, kurum_adi=kurum_adi).exists():
+            raise ValidationError("Aynı kuruma zaten bir başvuru yaptınız.")
+
+        # ✅ Yeni başvuruyu kaydet
+        serializer.save(ogrenci=ogrenci)
 
 class StajDetayAPIView(generics.RetrieveAPIView):
     serializer_class = StajSerializer
